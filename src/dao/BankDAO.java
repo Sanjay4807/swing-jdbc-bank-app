@@ -254,17 +254,16 @@ public class BankDAO {
             String firstLock = senderAccountNo.compareToIgnoreCase(receiverAccountNo) < 0 ? senderAccountNo : receiverAccountNo;
             String secondLock = senderAccountNo.compareToIgnoreCase(receiverAccountNo) < 0 ? receiverAccountNo : senderAccountNo;
 
-            getAccountForUpdate(conn, firstLock);
-            getAccountForUpdate(conn, secondLock);
+            Account firstAcc = getAccountForUpdate(conn, firstLock);
+            Account secondAcc = getAccountForUpdate(conn, secondLock);
 
-            // Verify Sender
-            Account sender = getAccountForUpdate(conn, senderAccountNo);
+            // Assign Sender and Receiver from locked accounts
+            Account sender = senderAccountNo.equalsIgnoreCase(firstLock) ? firstAcc : secondAcc;
+            Account receiver = receiverAccountNo.equalsIgnoreCase(firstLock) ? firstAcc : secondAcc;
+
             if (sender == null) {
                 throw new SQLException("Sender account '" + senderAccountNo + "' does not exist.");
             }
-
-            // Verify Receiver
-            Account receiver = getAccountForUpdate(conn, receiverAccountNo);
             if (receiver == null) {
                 throw new SQLException("Receiver account '" + receiverAccountNo + "' does not exist.");
             }
@@ -305,7 +304,7 @@ public class BankDAO {
 
             // STRICT ACID STEP 4: Insert transaction log for Sender
             String senderLogSql = "INSERT INTO TRANSACTIONS (transaction_id, account_no, transaction_type, amount, target_account_no, description) " +
-                                 "VALUES (SEQ_TRANSACTION_ID.NEXTVAL, UPPER(?), 'TRANSFER', ?, UPPER(?), ?)";
+                                 "VALUES (SEQ_TRANSACTION_ID.NEXTVAL, UPPER(?), 'TRANSFER_OUT', ?, UPPER(?), ?)";
             try (PreparedStatement logStmt = conn.prepareStatement(senderLogSql)) {
                 logStmt.setString(1, senderAccountNo.trim());
                 logStmt.setBigDecimal(2, transferAmt);
@@ -316,7 +315,7 @@ public class BankDAO {
 
             // STRICT ACID STEP 5: Insert transaction log for Receiver
             String receiverLogSql = "INSERT INTO TRANSACTIONS (transaction_id, account_no, transaction_type, amount, target_account_no, description) " +
-                                   "VALUES (SEQ_TRANSACTION_ID.NEXTVAL, UPPER(?), 'TRANSFER', ?, UPPER(?), ?)";
+                                   "VALUES (SEQ_TRANSACTION_ID.NEXTVAL, UPPER(?), 'TRANSFER_IN', ?, UPPER(?), ?)";
             try (PreparedStatement logStmt = conn.prepareStatement(receiverLogSql)) {
                 logStmt.setString(1, receiverAccountNo.trim());
                 logStmt.setBigDecimal(2, transferAmt);

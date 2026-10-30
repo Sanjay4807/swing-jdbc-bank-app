@@ -218,10 +218,10 @@ public class DashboardFrame extends JFrame {
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 String type = (String) table.getValueAt(row, 2);
                 if (!isSelected) {
-                    if ("DEPOSIT".equalsIgnoreCase(type)) {
-                        c.setForeground(new Color(16, 124, 65)); // Green
-                    } else if ("WITHDRAWAL".equalsIgnoreCase(type)) {
-                        c.setForeground(new Color(217, 48, 37)); // Red
+                    if ("DEPOSIT".equalsIgnoreCase(type) || "TRANSFER_IN".equalsIgnoreCase(type)) {
+                        c.setForeground(new Color(16, 124, 65)); // Green (+ money in)
+                    } else if ("WITHDRAWAL".equalsIgnoreCase(type) || "TRANSFER_OUT".equalsIgnoreCase(type)) {
+                        c.setForeground(new Color(217, 48, 37)); // Red (- money out)
                     } else {
                         c.setForeground(new Color(24, 119, 242)); // Blue
                     }
@@ -261,7 +261,7 @@ public class DashboardFrame extends JFrame {
      * Refreshes account balance and transaction table from Oracle DB.
      */
     public void refreshAccountData() {
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             private Account updatedAccount;
             private List<Transaction> transactions;
             private String errorMsg;

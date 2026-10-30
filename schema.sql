@@ -85,7 +85,7 @@ CREATE TABLE TRANSACTIONS (
         REFERENCES ACCOUNTS(account_no),
     CONSTRAINT fk_trans_target_account FOREIGN KEY (target_account_no) 
         REFERENCES ACCOUNTS(account_no),
-    CONSTRAINT chk_trans_type CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER')),
+    CONSTRAINT chk_trans_type CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'TRANSFER_IN', 'TRANSFER_OUT')),
     CONSTRAINT chk_trans_amount CHECK (amount > 0)
 );
 

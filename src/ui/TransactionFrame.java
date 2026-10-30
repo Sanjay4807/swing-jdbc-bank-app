@@ -210,7 +210,7 @@ public class TransactionFrame extends JDialog {
 
         btnSubmit.setEnabled(false);
 
-        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             private String failureMessage = null;
 
             @Override
